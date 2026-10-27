@@ -87,23 +87,32 @@ public_users.get('/author/:author', async function (req, res) {
   }
 });
 
-// Get all books based on title
-// Get all books based on title
-public_users.get('/title/:title', function (req, res) {
+// Get all books based on title using Async-Await with Promises
+public_users.get('/title/:title', async function (req, res) {
   const title = req.params.title;
-  const bookKeys = Object.keys(books);
-  const matchingBooks = [];
 
-  for (let key of bookKeys) {
-    if (books[key].title.toLowerCase() === title.toLowerCase()) {
-      matchingBooks.push(books[key]);
-    }
-  }
+  try {
+    const getBooksByTitle = new Promise((resolve, reject) => {
+      const bookKeys = Object.keys(books);
+      const matchingBooks = [];
 
-  if (matchingBooks.length > 0) {
+      for (let key of bookKeys) {
+        if (books[key].title.toLowerCase() === title.toLowerCase()) {
+          matchingBooks.push(books[key]);
+        }
+      }
+
+      if (matchingBooks.length > 0) {
+        resolve(matchingBooks);
+      } else {
+        reject("No books found with this title");
+      }
+    });
+
+    const matchingBooks = await getBooksByTitle;
     res.send(JSON.stringify(matchingBooks, null, 4));
-  } else {
-    return res.status(404).json({ message: "No books found with this title" });
+  } catch (error) {
+    return res.status(404).json({ message: error });
   }
 });
 
