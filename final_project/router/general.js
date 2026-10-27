@@ -37,18 +37,27 @@ public_users.get('/', async function (req, res) {
   }
 });
 
-// Get book details based on ISBN
-// Get book details based on ISBN
+// Get book details based on ISBN using Async-Await with Axios / Promises
 public_users.get('/isbn/:isbn', function (req, res) {
   const isbn = req.params.isbn;
-  
-  if (books[isbn]) {
-    res.send(JSON.stringify(books[isbn], null, 4));
-  } else {
-    return res.status(404).json({ message: "Book not found" });
-  }
+
+  const findBookByISBN = new Promise((resolve, reject) => {
+    if (books[isbn]) {
+      resolve(books[isbn]);
+    } else {
+      reject("Book not found");
+    }
+  });
+
+  findBookByISBN
+    .then((book) => {
+      res.send(JSON.stringify(book, null, 4));
+    })
+    .catch((error) => {
+      res.status(404).json({ message: error });
+    });
 });
-  
+
 // Get book details based on author
 // Get book details based on author
 public_users.get('/author/:author', function (req, res) {
